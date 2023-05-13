@@ -1,0 +1,6 @@
+{
+  "python.linting.pylintArgs": [
+    "--init-hook",
+    "import sys; sys.path.append('/Users/joonklaps/Desktop/School/PhD/projects/LVE-BE001-DATABASE/LVE_BE001-supplementary/LabFileChecker/src/labfilechecker')"
+  ]
+}

@@ -14,7 +14,7 @@ def column_names(df, config):
     failed = []
     if unknown_headers:
         for header in unknown_headers:
-            warned.append(
+            warned.extend(
                 LintResult(
                     row=None,
                     value=header,
@@ -24,7 +24,7 @@ def column_names(df, config):
             )
     if missing_headers: 
         for header in missing_headers:
-            failed.append(
+            failed.extend(
                 LintResult(
                     row=None,
                     value=header,
@@ -33,7 +33,7 @@ def column_names(df, config):
                 )
             )
     if not unknown_headers and not missing_headers:
-        passed.append(
+        passed.extend(
             LintResult(
                 row=None,
                 value=None,
@@ -56,7 +56,7 @@ def duplicate_samples(df, config):
     for column in unique_columns:
         df_dupl = df.duplicated([column], keep =False)
         if not df_dupl.empty:
-            failed.append(
+            failed.extend(
                 df_dupl.apply(
                 lambda row: LintResult(
                     row['row'],
@@ -65,7 +65,7 @@ def duplicate_samples(df, config):
                     f"{row[column]} is not a unique value in column {column}"),
                 axis=1).tolist())
         else:
-            passed.append(
+            passed.extend(
                 LintResult(
                     row=None,
                     value=column,
@@ -77,7 +77,7 @@ def duplicate_samples(df, config):
     for columns in unique_comb_columns: 
         df_dupl = df.duplicated(columns, keep =False)
         if not df_dupl.empty:
-            failed.append(
+            failed.extend(
                 df_dupl.apply(
                 lambda row: LintResult(
                     row['row'],
@@ -86,7 +86,7 @@ def duplicate_samples(df, config):
                     f"{row[columns]} is not a unique combination in columns {columns}"),
                 axis=1).tolist())
         else:
-            passed.append(
+            passed.extend(
                 LintResult(
                     row=None,
                     value=columns,
@@ -118,7 +118,7 @@ def dates(df, config):
     # Get the rows with NaN values
     failed_dates = melted_df[melted_df['transformed_date'].isnull()]
     if not failed_dates.empty:
-        warned.append(
+        warned.extend(
             failed_dates.apply(
             lambda row: LintResult(
                 row['index'],
@@ -127,10 +127,10 @@ def dates(df, config):
                 f"{row['value']} is not a date in column {row['column']}"),
             axis=1).tolist())
     else:
-        passed.append(
+        passed.extend(
             LintResult(
                 row=None,
-                value=column,
+                value=None,
                 lint_test="dates",
                 message=f"All values in column {', '.join(date_columns)} are dates"
             )
@@ -157,7 +157,7 @@ def numeric_values(df, config):
     # Get the rows with NaN values
     failed_values = melted_df[melted_df['transformed_value'].isnull()]
     if not failed_values.empty:
-        warned.append(
+        warned.extend(
             failed_values.apply(
             lambda row: LintResult(
                 row['index'],
@@ -166,10 +166,10 @@ def numeric_values(df, config):
                 f"{row['value']} is not a numeric value in column {row['column']}"),
             axis=1).tolist())
     else:
-        passed.append(
+        passed.extend(
             LintResult(
                 row=None,
-                value=column,
+                value=None,
                 lint_test="numeric_values",
                 message=f"All values in column {', '.join(numeric_columns)} are numeric"
             )
@@ -185,7 +185,7 @@ def presence_patientsID(df, config):
     warned = []
     failed = []
     if not df_lassa.empty:
-        failed.append(
+        failed.extend(
             df_lassa.apply(
             lambda row: LintResult(
                 row['row'],
@@ -194,20 +194,99 @@ def presence_patientsID(df, config):
                 f"The lassa ID: {row['SampleID']} - was not found in the database, make sure it's written correctly (no leading zeros, correct year ...XXLVYY)"),
             axis=1).tolist())
     else:
-        passed.append(
+        passed.extend(
             LintResult(
                 row=None,
-                value=column,
+                value=None,
                 lint_test="presence_patientsID",
-                message=f"No duplicate samples in column {column}"
+                message="All lassa samples have a patient ID"
             )
         )
     return passed, warned, failed
 
-def sample_names(df, config):
+def referring_ids(df, config):
+    """Check if the referred IDs do really exist."""
+    referring_columns = [[v['Column_name'],v['is_referring_to']] for v in config.values() if 'is_referring_to' in v.keys() and 'seperation_character' not in v.keys()]
+
+    passed = []
+    warned = []
+    failed = []
+    # need to check that df[arr[0]] in df[arr[1]] exists for all arr in referring_columns
+    for arr in referring_columns:
+        df_ref = df[df[arr[0]].notnull()]
+        df_ref = df_ref[~df_ref[arr[0]].isin(df[arr[1]])]
+        if not df_ref.empty:
+            failed.extend(
+                df_ref.apply(
+                lambda row: LintResult(
+                    row['row'],
+                    row[arr[0]],
+                    'referring_ids',
+                    f"{row[arr[0]]} is not in {arr[1]}"),
+                axis=1).tolist())
+        else:
+            passed.extend(
+                LintResult(
+                    row=None,
+                    value=arr[0],
+                    lint_test="referring_ids",
+                    message=f"All values in column {arr[0]} are in {arr[1]}"
+                )
+            )
     
-    pass 
-def merged_samples(df, config):
-    pass 
-def value_range(df,config):
-    pass
+    referring_columns_with_sep = [[v['Column_name'],v['is_referring_to'],v['separation_character']] for v in config.values() if 'is_referring_to' in v.keys() and 'separation_character' in v.keys()]
+    
+    df = df.reset_index(inplace=True)
+    for arr in referring_columns_with_sep:
+        df_ref = df[df[arr[0]].notnull()]
+        df_ref['col_seperated'] = df_ref[arr[0]].str.split(arr[2])
+        df_ref = df_ref.explode('col_seperated')
+        df_ref = df_ref[~df_ref['col_seperated'].isin(df[arr[1]])]
+        if not df_ref.empty:
+            failed.extend(
+                df_ref.apply(
+                lambda row: LintResult(
+                    row['index'],
+                    row[arr[0]],
+                    'referring_ids',
+                    f"The value {row['col_seperated']} from {' ,'.join(row[arr[0]].str.split(arr[2]))} is not in {arr[1]}"),
+                axis=1).tolist())
+        else:
+            passed.extend(
+                LintResult(
+                    row=None,
+                    value=arr[0],
+                    lint_test="referring_ids",
+                    message=f"All values in column {arr[0]} are in {arr[1]}"
+                )
+            )
+    return passed, warned, failed 
+
+def allowed_values(df,config):
+    """Check if the values from the columns are valid, all values are expected"""
+    allowed_columns = [[v['Column_name'],v['allowed_values'].str.split(',')] for v in config.values() if 'allowed_values' in v.keys()]
+    passed = []
+    warned = []
+    failed = []
+    for arr in allowed_columns:
+        df_ref = df[df[arr[0]].notnull()]
+        df_ref = df_ref[~df_ref[arr[0]].isin(arr[1])]
+        if not df_ref.empty:
+            failed.extend(
+                df_ref.apply(
+                lambda row: LintResult(
+                    row['row'],
+                    row[arr[0]],
+                    'allowed_values',
+                    f"{row[arr[0]]} is not in {arr[1]}"),
+                axis=1).tolist())
+        else:
+            passed.extend(
+                LintResult(
+                    row=None,
+                    value=arr[0],
+                    lint_test="allowed_values",
+                    message=f"All values in column {arr[0]} are in {arr[1]}"
+                )
+            )
+    return passed, warned, failed

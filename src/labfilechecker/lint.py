@@ -51,9 +51,8 @@ class ExcelLint:
             "dates"               : lint_tests.dates,
             "numeric_values"      : lint_tests.numeric_values,
             "presence_patientsID" : lint_tests.presence_patientsID,
-            "sample_names"        : lint_tests.sample_names,
-            "value_range"         : lint_tests.value_range,
-            "merged_samples"      : lint_tests.merged_samples
+            "referring_ids"        : lint_tests.referring_ids,
+            "value_range"         : lint_tests.allowed_values
             }
         
 

@@ -205,6 +205,7 @@ def presence_patientsID(df, config):
     return passed, warned, failed
 
 def sample_names(df, config):
+    
     pass 
 def merged_samples(df, config):
     pass 

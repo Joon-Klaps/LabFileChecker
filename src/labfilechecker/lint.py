@@ -19,12 +19,13 @@ import lint_tests
 class LintResult:
     """An object to hold the results of a lint test"""
 
-    def __init__(self, mod, lint_test, message, file_path):
-        self.mod = mod
+    def __init__(self, row, value, lint_test, message):
+        self.row  = row
+        self.value = value
         self.lint_test = lint_test
         self.message = message
-        self.file_path = file_path
-        self.module_name = mod.module_name
+
+    
 
 class ExcelLint:
     """Class to check for inconsistencies in lab (excel) files."""
@@ -39,7 +40,7 @@ class ExcelLint:
         self.config = extract_config(config)
 
         self.logger.info("Using excel in %s", file )
-        self.df = pd.read_excel(file)
+        self.df = pd.read_excel(file, skiprows=)
         
         self.passed = []
         self.warned = []
@@ -51,6 +52,7 @@ class ExcelLint:
             "numeric_values"      : lint_tests.numeric_values,
             "presence_patientsID" : lint_tests.presence_patientsID,
             "sample_names"        : lint_tests.sample_names,
+            "value_range"         : lint_tests.value_range,
             "merged_samples"      : lint_tests.merged_samples
             }
         

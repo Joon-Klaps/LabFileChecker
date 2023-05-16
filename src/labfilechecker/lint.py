@@ -6,31 +6,22 @@ import os
 
 import rich
 import rich.progress
-from rich.console import Console,group
-from rich.markdown import Markdown
+from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+from rich.emoji import Emoji
+
+from utils import flatten
 
 import pandas as pd
 
 from extract_config import extract_config
 import lint_tests 
 
-class LintResult:
-    """An object to hold the results of a lint test"""
-
-    def __init__(self, row, value, lint_test, message):
-        self.row  = row
-        self.value = value
-        self.lint_test = lint_test
-        self.message = message
-
-    
-
 class ExcelLint:
     """Class to check for inconsistencies in lab (excel) files."""
     
-    def __init__(self, config:str, file:str):
+    def __init__(self, config:str, file:str,skiprows:int):
         """Initialize the class."""        
         logging.basicConfig(level=logging.DEBUG)
         self.logger = logging.getLogger(__name__)
@@ -40,21 +31,20 @@ class ExcelLint:
         self.config = extract_config(config)
 
         self.logger.info("Using excel in %s", file )
-        self.df = pd.read_excel(file, skiprows=)
+        self.df = pd.read_excel(file, skiprows=skiprows)
         
-        self.passed = []
-        self.warned = []
-        self.failed = []
         self.lint_tests = {
             "column_names"        : lint_tests.column_names,
             "duplicate_samples"   : lint_tests.duplicate_samples,
             "dates"               : lint_tests.dates,
             "numeric_values"      : lint_tests.numeric_values,
             "presence_patientsID" : lint_tests.presence_patientsID,
-            "referring_ids"        : lint_tests.referring_ids,
-            "value_range"         : lint_tests.allowed_values
+            "referring_ids"       : lint_tests.referring_ids,
+            "allowed_values"      : lint_tests.allowed_values
             }
-        
+        self.passed = []
+        self.warned = []
+        self.failed = []
 
     def lint(self):
         """Run all lint tests."""
@@ -65,13 +55,13 @@ class ExcelLint:
         # TOD progress bar
         for key, lint_test in self.lint_tests.items():
             self.logger.info("Running test %s", key)
-            passed,warned,failed = lint_test(self.df, self.config,lint_test)
+            passed,warned,failed = lint_test(self.df, self.config)
             self.passed.extend(passed)
             self.warned.extend(warned)
             self.failed.extend(failed)
-        pass
+        pass 
 
-    def _print_results(self, show_passed):
+    def _print_results(self):
         """Print linting results to the command line.
 
         Uses the ``rich`` library to print a set of formatted tables to the command line
@@ -86,27 +76,31 @@ class ExcelLint:
         self.logger.info("Printing final results")
 
         # Helper function to format test links nicely
-        @group()
-        def format_result(test_results):
-            # TODO
-            """
-            Given an list of error message IDs and the message texts, return a nicely formatted
-            string for the terminal with appropriate ASCII colours.
-            """
-            for eid, msg in test_results:
-                tools_version = __version__
-                if "dev" in __version__:
-                    tools_version = "latest"
-                yield Markdown(
-                    f"[{eid}](https://nf-co.re/tools/docs/{tools_version}/pipeline_lint_tests/{eid}.html): {msg}"
+        def format_result(test_results, color ):
+            """Format a list of lint test results into a rich table."""
+            table = Table(show_header=True, header_style=f"bold {color}",style=f"{color}" )
+            table.add_column("Row")
+            table.add_column("Value")
+            table.add_column("Test")
+            table.add_column("Message")
+
+            for result in test_results:
+                row = str(result.row) if result.row is not None else ""
+                value = str(result.value) if result.value is not None else ""
+                table.add_row(
+                    row,
+                    value,
+                    result.lint_test,
+                    result.message,
                 )
+            return table
 
         # Table of passed tests
-        if len(self.passed) > 0 and show_passed:
+        if len(self.passed) > 0:
             console.print(
                 rich.panel.Panel(
-                    format_result(self.passed),
-                    title=rf"[bold][✔] {len(self.passed)} Pipeline Test{_s(self.passed)} Passed",
+                    format_result(self.passed, "green"),
+                    title=rf"[bold][✔] {len(self.passed)} Tests Passed",
                     title_align="left",
                     style="green",
                     padding=1,
@@ -117,8 +111,8 @@ class ExcelLint:
         if len(self.warned) > 0:
             console.print(
                 rich.panel.Panel(
-                    format_result(self.warned),
-                    title=rf"[bold][!] {len(self.warned)} Pipeline Test Warning{_s(self.warned)}",
+                    format_result(self.warned, "yellow"),
+                    title=rf"[bold][!] {len(self.warned)} Tests Warning",
                     title_align="left",
                     style="yellow",
                     padding=1,
@@ -129,10 +123,34 @@ class ExcelLint:
         if len(self.failed) > 0:
             console.print(
                 rich.panel.Panel(
-                    format_result(self.failed),
-                    title=rf"[bold][✗] {len(self.failed)} Pipeline Test{_s(self.failed)} Failed",
+                    format_result(self.failed, "red"),
+                    title=rf"[bold][✗] {len(self.failed)} Tests Failed",
                     title_align="left",
                     style="red",
                     padding=1,
                 )
             )
+        
+        # make a summary table printing the number of passed, warned and failed tests
+        summary_table = Table(show_header=True, header_style="bold blue",style="blue" )
+        summary_table.add_column("Passed")
+        summary_table.add_column("Warned")
+        summary_table.add_column("Failed")
+        summary_table.add_row(
+            str(len(self.passed)),
+            str(len(self.warned)),
+            str(len(self.failed)),
+        )
+        console.print(
+            rich.panel.Panel(
+                summary_table,
+                title=rf"[bold]Summary",
+                title_align="center",
+                style="blue",
+                padding=1,
+            )
+        )
+
+        if len(self.warned) + len(self.failed) == 0:
+            console.print("😎 All tests passed! :tada::tada::tada:")
+

@@ -23,7 +23,10 @@ def extract_config(config):
 def extract_config_excel(config):
     df = pd.read_excel(config, sheet_name="config", na_values=["", "NA", " ", "nan", "NaN", "NAN"])
     # return a dictionary that doesn't contain any NaN values in the values
-    return {k: v for row_dict in df.to_dict('index') for k, v in row_dict.items() if v == v and v is not None}
+    df_dict = df.to_dict('index')
+    for row_dict in df_dict:
+        df_dict[row_dict] = {k: v for k, v in df_dict[row_dict].items() if v == v and v is not None}
+    return df_dict
 
 def extract_config_yml(config):
     """Extract config from config file."""

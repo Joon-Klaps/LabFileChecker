@@ -12,13 +12,13 @@ def main(
     """Run all lint tests."""
     lint = ExcelLint(config, file,skiprows)
 
-    lint.lint()
-    lint._print_results()
-    
     if export_config:
         with open ("config.yml","w", encoding="utf-8") as file:
             yaml.dump(lint.config,file)
     pass
+    
+    lint.lint()
+    lint._print_results()
 
 if __name__ == "__main__":
     typer.run(main)

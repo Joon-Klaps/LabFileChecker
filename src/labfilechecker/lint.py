@@ -2,16 +2,17 @@
 """My main script to check for inconsistencies in lab (excel) files."""
 
 import logging
-import os 
+import time
 
 import rich
 import rich.progress
 from rich.console import Console
+from rich.columns import Columns
+from rich.text import Text
 from rich.panel import Panel
+from rich.progress import Progress, BarColumn
 from rich.table import Table
-from rich.emoji import Emoji
 
-from utils import flatten
 
 import pandas as pd
 
@@ -58,13 +59,28 @@ class ExcelLint:
         failed = []
 
         # TOD progress bar
-        for key, lint_test in self.lint_tests.items():
-            self.logger.info("Running test %s", key)
-            passed,warned,failed = lint_test(self.df.copy(), self.config)
-            self.passed.extend(passed)
-            self.warned.extend(warned)
-            self.failed.extend(failed)
-        pass 
+        # Create a Progress instance with the desired format
+        progress = Progress("[progress.description]{task.description}", BarColumn())
+
+        with progress:
+            # Define a task for the progress bar
+            task = progress.add_task("[cyan]Running tests...", total=len(self.lint_tests))
+
+            for key, lint_test in self.lint_tests.items():
+                # Update the task description for each test
+                progress.update(task, description=f"Running test {key}")
+
+                passed, warned, failed = lint_test(self.df.copy(), self.config)
+                self.passed.extend(passed)
+                self.warned.extend(warned)
+                self.failed.extend(failed)
+                
+                time.sleep(0.1)
+                # Advance the progress bar for each test
+                progress.advance(task)
+
+        # Mark the task as completed
+        progress.stop()
 
     def _print_results(self):
         """Print linting results to the command line.
@@ -133,8 +149,7 @@ class ExcelLint:
                 )
             )
         
-        # make a summary table printing the number of passed, warned and failed tests
-        summary_table = Table(show_header=True, header_style="bold blue",style="blue" )
+        summary_table = Table(show_header=True, header_style="bold blue", style="blue")
         summary_table.add_column("Passed")
         summary_table.add_column("Warned")
         summary_table.add_column("Failed")
@@ -143,16 +158,20 @@ class ExcelLint:
             str(len(self.warned)),
             str(len(self.failed)),
         )
-        console.print(
-            rich.panel.Panel(
-                summary_table,
-                title=rf"[bold]Summary",
-                title_align="left",
-                style="blue",
-                padding=1,
-            )
+        if len(self.warned) + len(self.failed) == 0:
+            success_message = Text("😎 All tests passed! 🎉🎉🎉", style="bold")
+            panel_content = Columns([summary_table, success_message], align="center",width=40)
+        else:
+            panel_content = summary_table
+
+        summary_panel = Panel(
+            panel_content,
+            title="[bold]Summary",
+            title_align="left",
+            style="blue",
+            padding=1,
         )
 
-        if len(self.warned) + len(self.failed) == 0:
-            console.print("😎 All tests passed! :tada::tada::tada:")
-
+        console.print(
+            summary_panel
+    )   

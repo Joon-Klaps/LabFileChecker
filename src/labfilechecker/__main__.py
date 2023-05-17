@@ -1,5 +1,6 @@
 import typer 
 import yaml
+import os 
 
 from lint import ExcelLint
 
@@ -10,6 +11,10 @@ def main(
         skiprows:int = typer.Option(1, help="Number of rows to skip at the beginning of the excel file."),
         ):
     """Run all lint tests."""
+
+    if not os.path.isfile(file):
+        raise ValueError(f"{file} does not exist.")
+
     lint = ExcelLint(config, file,skiprows)
 
     if export_config:

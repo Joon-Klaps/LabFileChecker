@@ -17,20 +17,20 @@
 5:
   Column_name: Merged to LVE_SeqID
   Column_type: text
-  is_referring_to: LVE_SeqID
+  Is_referring_to: LVE_SeqID
 6:
   Column_name: Merged_SeqID info
   Column_type: text
-  is_referring_to: LVE_SeqID
-  separation_character: _
+  Is_referring_to: LVE_SeqID
+  Separation_character: _
 7:
-  Allowed_values: extract,zymo,sample,IVT,H2O
+  Allowed_values: extract,zymo,sample,IVT,H2O,plasma
   Column_name: Process_started_from
   Column_type: text
 8:
   Column_name: Process_started_from_LVESeqID
   Column_type: text
-  is_referring_to: LVE_SeqID
+  Is_referring_to: LVE_SeqID
 9:
   Column_name: SeqID_Info
   Column_type: text
@@ -54,7 +54,7 @@
   Column_name: Sampling_Year
   Column_type: numeric
 16:
-  Allowed_values: LASV,HIV
+  Allowed_values: LASV,HIV,HAZV
   Column_name: Suspect_Virus
   Column_type: text
 17:
@@ -92,7 +92,7 @@
 27:
   Column_name: BNITM_EXT_SeqID
   Column_type: text
-  is_referring_to: BNITM_SeqID
+  Is_referring_to: BNITM_SeqID
 28:
   Column_name: EXT_ProtocolID
   Column_type: text
@@ -145,15 +145,15 @@
 44:
   Column_name: KUL_EXT_PCR_filename
   Column_type: text
-  unique_with: KUL_EXT_PCR_SeqID-in-file
+  Unique_with: KUL_EXT_PCR_SeqID-in-file
 45:
   Column_name: KUL_EXT_PCR_SeqID-in-file
   Column_type: text
-  unique_with: KUL_EXT_PCR_filename
+  Unique_with: KUL_EXT_PCR_filename
 46:
   Column_name: KUL_EXT_PCR_SeqID-original-sample
   Column_type: text
-  is_referring_to: LVE_SeqID
+  Is_referring_to: LVE_SeqID
 47:
   Column_name: KUL_EXT_PCR_date
   Column_type: date
@@ -208,15 +208,15 @@
 64:
   Column_name: KUL_DNZ_PCR_filename
   Column_type: text
-  unique_with: KUL_DNZ_PCR_SeqID-in-file
+  Unique_with: KUL_DNZ_PCR_SeqID-in-file
 65:
   Column_name: KUL_DNZ_PCR_SeqID-in-file
   Column_type: text
-  unique_with: KUL_DNZ_PCR_filename
+  Unique_with: KUL_DNZ_PCR_filename
 66:
   Column_name: KUL_DNZ_PCR_SeqID_original-sample
   Column_type: text
-  is_referring_to: LVE_SeqID
+  Is_referring_to: LVE_SeqID
 67:
   Column_name: KUL_DNZ_PCR_date
   Column_type: date
@@ -259,15 +259,15 @@
 80:
   Column_name: cDNA_PCR_file_name
   Column_type: text
-  unique_with: cDNA_PCR_SeqID_in_file
+  Unique_with: cDNA_PCR_SeqID_in_file
 81:
   Column_name: cDNA_PCR_SeqID_in_file
   Column_type: text
-  unique_with: cDNA_PCR_file_name
+  Unique_with: cDNA_PCR_file_name
 82:
   Column_name: cDNA_PCR_SeqID_original_sample
   Column_type: text
-  is_referring_to: LVE_SeqID
+  Is_referring_to: LVE_SeqID
 83:
   Column_name: cDNA_PCR_date
   Column_type: date
@@ -304,15 +304,15 @@
 94:
   Column_name: KUL_CDN_PCR_filename
   Column_type: text
-  unique_with: KUL_CDN_PCR_SeqID-in-file
+  Unique_with: KUL_CDN_PCR_SeqID-in-file
 95:
   Column_name: KUL_CDN_PCR_SeqID-in-file
   Column_type: text
-  unique_with: KUL_CDN_PCR_filename
+  Unique_with: KUL_CDN_PCR_filename
 96:
   Column_name: KUL_CDN_PCR_SeqID_original-sample
   Column_type: text
-  is_referring_to: LVE_SeqID
+  Is_referring_to: LVE_SeqID
 97:
   Column_name: KUL_CDN_PCR_date
   Column_type: date
@@ -386,26 +386,26 @@
 120:
   Column_name: KUL_KAPA_PCR_KQL-worksheet-file-name
   Column_type: text
-  unique_with: KUL_KAPA_PCR_SeqID_in_file
+  Unique_with: KUL_KAPA_PCR_SeqID_in_file
 121:
   Column_name: KUL_KAPA_PCR_SeqID_in_file
   Column_type: text
-  unique_with: KUL_KAPA_PCR_KQL-worksheet-file-name
+  Unique_with: KUL_KAPA_PCR_KQL-worksheet-file-name
 122:
   Column_name: KUL_KAPA_PCR_SeqID_original_sample
   Column_type: text
-  is_referring_to: LVE_SeqID
+  Is_referring_to: LVE_SeqID
 123:
-  Column_name: KUL_KAPA_PCR_Dil-1:1000-Ct1
+  Column_name: KUL_KAPA_PCR_Dil-1000-Ct1
   Column_type: numeric
 124:
-  Column_name: KUL_KAPA_PCR_Dil-1:1000-Ct2
+  Column_name: KUL_KAPA_PCR_Dil-1000-Ct2
   Column_type: numeric
 125:
-  Column_name: KUL_KAPA_PCR_Dil-1:8000-Ct1
+  Column_name: KUL_KAPA_PCR_Dil-8000-Ct1
   Column_type: numeric
 126:
-  Column_name: KUL_KAPA_PCR_Dil-1:8000-Ct2
+  Column_name: KUL_KAPA_PCR_Dil-8000-Ct2
   Column_type: numeric
 127:
   Column_name: "KUL_KAPA_PCR_Total-yield-in-ng-\xB5l"
@@ -419,15 +419,15 @@
 130:
   Column_name: KUL_LIB_PCR_filename
   Column_type: text
-  unique_with: KUL_LIB_PCR_SeqID-in-file
+  Unique_with: KUL_LIB_PCR_SeqID-in-file
 131:
   Column_name: KUL_LIB_PCR_SeqID-in-file
   Column_type: text
-  unique_with: KUL_LIB_PCR_filename
+  Unique_with: KUL_LIB_PCR_filename
 132:
   Column_name: KUL_LIB_PCR_SeqID_original-sample
   Column_type: text
-  is_referring_to: LVE_SeqID
+  Is_referring_to: LVE_SeqID
 133:
   Column_name: KUL_LIB_PCR_date
   Column_type: date

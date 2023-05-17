@@ -13,7 +13,7 @@ from rich.table import Table
 import pandas as pd
 
 from .extract_config import extract_config
-import lint_tests
+from .lint_tests import *
 
 class ExcelLint:
     """Class to check for inconsistencies in lab (excel) files."""
@@ -31,14 +31,14 @@ class ExcelLint:
         self.df = df
         
         self.lint_tests = {
-            "column_names"        : lint_tests.column_names,
-            "duplicate_samples"   : lint_tests.duplicate_samples,
-            "dates"               : lint_tests.dates,
-            "unrealistic_dates"   : lint_tests.unrealistic_dates,
-            "numeric_values"      : lint_tests.numeric_values,
-            "presence_patientsID" : lint_tests.presence_patientsID,
-            "referring_ids"       : lint_tests.referring_ids,
-            "allowed_values"      : lint_tests.allowed_values
+            "column_names"        : column_names,
+            "duplicate_samples"   : duplicate_samples,
+            "dates"               : dates,
+            "unrealistic_dates"   : unrealistic_dates,
+            "numeric_values"      : numeric_values,
+            "presence_patientsID" : presence_patientsID,
+            "referring_ids"       : referring_ids,
+            "allowed_values"      : allowed_values
             }
         self.passed = []
         self.warned = []

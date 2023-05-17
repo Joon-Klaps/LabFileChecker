@@ -12,14 +12,15 @@ from rich.progress import Progress, BarColumn
 from rich.table import Table
 import pandas as pd
 
-from .extract_config import extract_config
-import lint_tests
+from extract_config import extract_config
+import lint_tests 
 
 class ExcelLint:
     """Class to check for inconsistencies in lab (excel) files."""
     
     def __init__(self, config:str, file:str,skiprows:int):
         """Initialize the class."""        
+        logging.basicConfig(level=logging.DEBUG)
 
         config = config if config != "config sheet in [file]" else file 
         self.config = extract_config(config)

@@ -1,5 +1,5 @@
 import pandas as pd
-from .lint_result import LintResult
+from lint_result import LintResult
 
 def column_names(df, config):
     """Check if all column names are correct."""

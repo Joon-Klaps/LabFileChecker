@@ -1,9 +1,7 @@
 #!/usr/env python
 """My main script to check for inconsistencies in lab (excel) files."""
 
-import logging
 import time
-
 import rich
 import rich.progress
 from rich.console import Console
@@ -12,8 +10,6 @@ from rich.text import Text
 from rich.panel import Panel
 from rich.progress import Progress, BarColumn
 from rich.table import Table
-
-
 import pandas as pd
 
 from extract_config import extract_config
@@ -25,14 +21,11 @@ class ExcelLint:
     def __init__(self, config:str, file:str,skiprows:int):
         """Initialize the class."""        
         logging.basicConfig(level=logging.DEBUG)
-        self.logger = logging.getLogger(__name__)
 
         config = config if config != "config sheet in [file]" else file 
-        self.logger.info("Using config in %s", config)
         self.config = extract_config(config)
         self.skiprows = skiprows
 
-        self.logger.info("Using excel in %s", file )
         df = pd.read_excel(file, skiprows=self.skiprows)
         df  = df.reset_index().rename(columns={'index': 'Row_Number'})
         df['Row_Number'] = df['Row_Number'] + self.skiprows +2 

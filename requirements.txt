@@ -1,2 +1,4 @@
-typer
+time
+rich
 pandas
+yaml

@@ -3,7 +3,9 @@ import yaml
 import os 
 
 from lint import ExcelLint
+app = typer.Typer()
 
+@app.command()
 def main(
         file:str,
         config:str = typer.Option("config sheet in [file]", help="configuration file used to check the excel file."),
@@ -24,6 +26,3 @@ def main(
     
     lint.lint()
     lint._print_results()
-
-if __name__ == "__main__":
-    typer.run(main)

@@ -2,7 +2,7 @@ import typer
 import yaml
 import os 
 
-from lint import ExcelLint
+from .lint import ExcelLint
 app = typer.Typer()
 
 @app.command()

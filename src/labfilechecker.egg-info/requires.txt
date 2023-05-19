@@ -1,4 +1,5 @@
 typer
+typing
 rich
 pandas
 openpyxl

@@ -1,2 +1,0 @@
-[console_scripts]
-labfilechecker = labfilechecker.__main__:app

@@ -1,2 +1,10 @@
 .DS_Store
 assets/*.xlsx
+config.yml
+.vscode/
+build/
+dist/
+eggs/
+.eggs/
+*.egg-info/
+*.egg

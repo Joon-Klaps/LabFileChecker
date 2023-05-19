@@ -18,11 +18,10 @@ def version_callback(value: bool):
 def version_check(curr_version):
     """Checks for a newer version of labfilechecker"""
     try:
-        # response = requests.get("https://api.github.com/repos/Joon-Klaps/LabFileChecker/releases/latest")
-        # print(response.json())
-        # response.raise_for_status()
-        # latest_version = response.json()["name"]
-        latest_version = "1.0"
+        response = requests.get("https://api.github.com/repos/Joon-Klaps/LabFileChecker/releases/latest")
+        print(response.json())
+        response.raise_for_status()
+        latest_version = response.json()["name"]
         if latest_version != curr_version:
             console = Console(force_terminal=True)
             console.print(
@@ -48,7 +47,7 @@ def main(
     """Run all lint tests."""
 
     print(f"labfilechecker Version: {labfilechecker.__version__}")
-    version_check(labfilechecker.__version__)
+    #version_check(labfilechecker.__version__)
 
     if not os.path.isfile(file):
         raise typer.Exit(f"{file} does not exist.")

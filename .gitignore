@@ -1,2 +1,11 @@
 .DS_Store
 assets/*.xlsx
+config.yml
+.vscode/
+__pycache__/
+build/
+dist/
+eggs/
+.eggs/
+*.egg-info/
+*.egg

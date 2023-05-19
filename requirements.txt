@@ -1,2 +1,7 @@
 typer
+typing
+rich
+requests
 pandas
+openpyxl
+pyyaml

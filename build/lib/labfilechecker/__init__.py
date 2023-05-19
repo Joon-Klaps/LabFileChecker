@@ -1,3 +1,3 @@
 """Lab file checker"""
 
-__version__ = "0.1dev0"
+__version__ = "1.0dev"

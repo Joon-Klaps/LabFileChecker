@@ -19,7 +19,7 @@ def column_names(df, config):
                     row=None,
                     column=None,
                     value=header,
-                    lint_test="column_names",
+                    lint_test="column-names",
                     message=f"Column name {header} is not present in excel"
                 )]
             )
@@ -30,7 +30,7 @@ def column_names(df, config):
                     row=None,
                     column=None,
                     value=header,
-                    lint_test="column_names",
+                    lint_test="column-names",
                     message=f"Column name {header}, is not defined in config update config"
                 )]
             )
@@ -39,8 +39,8 @@ def column_names(df, config):
             LintResult(
                 row=None,
                 column=None,
-                value=None,
-                lint_test="column_names",
+                value='column-names',
+                lint_test="column-names",
                 message="All column names are configured correctly"
             )]
     return passed, warned, failed
@@ -68,7 +68,7 @@ def duplicate_samples(df, config):
                         row['Row_Number'],
                         column,
                         row[column], 
-                        'duplicate_samples', 
+                        'duplicate-samples', 
                         f"{row[column]} is not a unique value column {column}"), 
                     df_dupl.to_dict('records')))
                 )
@@ -77,7 +77,7 @@ def duplicate_samples(df, config):
                 LintResult(
                     row=None,
                     column=None,
-                    value="unique columns",
+                    value="unique-columns",
                     lint_test="duplicate_samples",
                     message=f"No duplicates in columns {unique_columns}"
                 )]
@@ -94,7 +94,7 @@ def duplicate_samples(df, config):
                         row['Row_Number'],
                         ' ,'.join(columns),
                         ' ,'.join([row.get(column) for column in columns]),
-                        'duplicate_samples',
+                        'duplicate-samples',
                         f"{' ,'.join([row.get(column) for column in columns])} is not a unique combination in columns {' ,'.join(columns)}"), 
                     df_dupl.to_dict('records')))
                 )
@@ -103,8 +103,8 @@ def duplicate_samples(df, config):
                 LintResult(
                     row=None,
                     column=None,
-                    value="unique combinations",
-                    lint_test="duplicate_samples",
+                    value="unique-combinations",
+                    lint_test="duplicate-samples",
                     message=f"No duplicates of combinations in columns {unique_comb_columns}"
                 )]
     passed = passed1 + passed2
@@ -188,7 +188,7 @@ def unrealistic_dates(df, config):
                 row['Row_Number'], 
                 row['column'],
                 row['value'], 
-                'unrealistic_dates', 
+                'unrealistic-dates', 
                 f"{row['value']} has a questionable date in column {row['column']}"), 
             failed_dates.to_dict('records')))
         )
@@ -197,7 +197,7 @@ def unrealistic_dates(df, config):
             LintResult(
                 row=None,
                 column=None,
-                value="unrealistic_dates",
+                value="unrealistic-dates",
                 lint_test="dates",
                 message=f"All values in column {', '.join(date_columns)} are realistic dates"
             )]
@@ -241,7 +241,7 @@ def numeric_values(df, config):
                 row=None,
                 column=None,
                 value='non-existing-numbers',
-                lint_test="numeric_values",
+                lint_test="numeric-values",
                 message=f"All values in column {', '.join(numeric_columns)} are numeric"
             )]
     return passed, warned, failed
@@ -261,7 +261,7 @@ def presence_patientsID(df, config):
                 row['Row_Number'],
                 'SampleID', 
                 row['SampleID'], 
-                'presence_patientsID', 
+                'presence-patientsID', 
                 f"The lassa ID: {row['SampleID']} - was not found in the database, make sure it's written correctly (no leading zeros, correct year ...XXLVYY)"), 
             df_lassa.to_dict('records')))
         )
@@ -270,8 +270,8 @@ def presence_patientsID(df, config):
             LintResult(
                 row=None,
                 column=None,
-                value=None,
-                lint_test="presence_patientsID",
+                value='presence-patientsID',
+                lint_test="presence-patientsID",
                 message="All lassa samples have a patient ID"
             )]
     return passed, warned, failed
@@ -308,7 +308,7 @@ def referring_ids(df, config):
                     row=None,
                     column=None,
                     value='non-existing-ids',
-                    lint_test="referring_ids",
+                    lint_test="referring-ids",
                     message=f"All values in columns {referring_columns} refer to existing IDs"
             )]
     
@@ -327,7 +327,7 @@ def referring_ids(df, config):
                         row['Row_Number'], 
                         arr[0],
                         row[arr[0]], 
-                        'referring_ids', 
+                        'referring-ids', 
                         f"The value {row['col_seperated']} from {' ,'.join(row[arr[0]].split(arr[2]))} is not in {arr[1]}"), 
                     df_ref.to_dict('records')))
                 )
@@ -337,7 +337,7 @@ def referring_ids(df, config):
                     row=None,
                     column=None,
                     value='non-existing-ids with seperation character',
-                    lint_test="referring_ids",
+                    lint_test="referring-ids",
                     message=f"All values refer to existing ids of columns {' ,'.join([sublist[0] for sublist in referring_columns_with_sep ])}"
                 )]
     passed = passed1 + passed2
@@ -363,7 +363,7 @@ def allowed_values(df,config):
                     row['Row_Number'], 
                     arr[0],
                     row[arr[0]], 
-                    'allowed_values', 
+                    'allowed-values', 
                     f"{row[arr[0]]} is not in the range of allowed values {' ,'.join(arr[1])}"), 
                 df_ref.to_dict('records')))
             )
@@ -374,7 +374,7 @@ def allowed_values(df,config):
                 row=None,
                 column=None,
                 value=None,
-                lint_test="allowed_values",
+                lint_test="allowed-values",
                 message=f"All values are correct in columns: {' ,'.join([sublist[0] for sublist in allowed_columns ])}"
             )]
     return passed, warned, failed

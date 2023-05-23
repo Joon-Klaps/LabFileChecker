@@ -33,13 +33,19 @@ def version_check(curr_version):
     except requests.exceptions.ConnectionError:
         pass
 
+    # If the request fails, do nothing
+    except requests.exceptions.HTTPError:
+        pass
+    
+    except requests.exceptions.RequestException:
+        pass
 
 @app.command()
 def main(
         file:str,
         config:Optional[str] = typer.Option("config sheet in [file]", help="configuration file used to check the excel file."),
         export_config:Optional[bool] = typer.Option(False, help="save the configuration .yml file."),
-        skiprows:Optional[int] = typer.Option(1, help="Number of rows to skip at the beginning of the excel file."),
+        skiprows:Optional[int] = typer.Option(0, help="Number of rows to skip at the beginning of the excel file."),
         version: Optional[bool] = typer.Option(None, "--version", callback=version_callback)
 
         ):

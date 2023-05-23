@@ -50,7 +50,6 @@ class ExcelLint:
         warned = []
         failed = []
 
-        # TOD progress bar
         # Create a Progress instance with the desired format
         progress = Progress("[progress.description]{task.description}", BarColumn())
 
@@ -60,14 +59,24 @@ class ExcelLint:
 
             for key, lint_test in self.lint_tests.items():
                 # Update the task description for each test
-                progress.update(task, description=f"Running test {key}")
+                try :   
+                    progress.update(task, description=f"Running test {key}")
 
-                passed, warned, failed = lint_test(self.df.copy(), self.config)
-                self.passed.extend(passed)
-                self.warned.extend(warned)
-                self.failed.extend(failed)
-                
-                time.sleep(0.1)
+                    passed, warned, failed = lint_test(self.df.copy(), self.config)
+                    self.passed.extend(passed)
+                    self.warned.extend(warned)
+                    self.failed.extend(failed)
+                    
+                    time.sleep(0.1)
+                except KeyError as e:
+                    console = Console(force_terminal=True)
+                    console.print(
+                        Panel(
+                            f"KeyError: {e} \n\n Check your config file, skipping test {key}",
+                            title="KeyError",
+                            style="bold dark_orange",
+                        )
+                    )
                 # Advance the progress bar for each test
                 progress.advance(task)
 

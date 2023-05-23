@@ -4,11 +4,12 @@ Lab file checker is a set of simple rules in order to guarantee the that the exc
 
 ## Installation
 
-To install the tool, clone the github repository locally and install it using pip.
+To install the tool, use pip and refer to the repository.
 
 Requirements:
 
 - python >=3.7
+- setuptools
 - pip
 
 ### Downloading the tool from the repository
@@ -70,6 +71,50 @@ Currently the following columns/keys are supported:
 - Unique_with
   - value: `with_this_column_the_following_values_are_unique`, the combination of the two columns make the coming values unique and are uniquely associated to the row (if the row is not a continuation of another row).
 
+### Tests
+
+There are a total of 10 tests that can be passed. Note that there can be more warnings and failed tests as they dependent on the number of failed cell values
+
+1. Column Names
+
+   > Checks if all columns are present in the config file
+
+2. Unique Columns:
+
+   > Checks if the columns that should have unique values are really unique and don't have duplicate values
+
+3. Unique Combinations:
+
+   > Checks if the combination of given columns are unique and don't have duplicate values
+
+4. Non-Existing-Dates:
+
+   > Checks if all the values can be read as a date
+
+5. Unrealistic Dates:
+
+   > Checks if the date is inbetween current-date and current-date minus 6 years
+
+6. Non-Existing-Numbers:
+
+   > Checks if the value can be read as a number
+
+7. Non-Existing-Ids:
+
+   > Checks if the column to which the file is referring to contains all these values
+
+8. Non-Existing-Ids with seperation character:
+
+   > Checks if the IDs split up by the seperation character are present in the column to which they are referring to
+
+9. Presence-Patients ID:
+
+   > Checks if the sample category is a 'LASSA SAMPLE' contains a value for the patientID, meaning it can be associated to a patient.
+
+10. Allowed-Values:
+
+    > Checks if the values of the column are in the range of the allowed values specified within the config file.
+
 ### Terminal output
 
 The terminal will display the results and show how many tests have `failed`, `warned` or `passed`.
@@ -81,4 +126,4 @@ The terminal will display the results and show how many tests have `failed`, `wa
 All results are displayed in a table format that contain the identified row, the column, the type of test and a message that will help to solve the issue.
 
 A snapshot of the result is shown:
-!(assets/images/snapshot_failed_tests.png)
+![failed-tests](assets/images/snapshot_failed_tests.png)

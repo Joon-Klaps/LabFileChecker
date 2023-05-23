@@ -42,6 +42,8 @@ $ labfilechecker --help
 *    file      TEXT  [default: None] [required]
 
 Options:
+--report                TEXT        save the linting results to a excel file. [default: report.xlsx]
+--export-report  --no-export-report save the linting results to a excel file. [default: export-report]
 --config                TEXT        configuration file used to check the excel file. [default: config sheet in [file]]
 --export-config  --no-export-config save the configuration .yml file. [default: no-export-config]
 --skiprows              INTEGER     Number of rows to skip at the beginning of the excel file. [default: 1]

@@ -9,3 +9,4 @@ eggs/
 .eggs/
 *.egg-info/
 *.egg
+report.xlsx

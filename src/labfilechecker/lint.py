@@ -14,16 +14,18 @@ import pandas as pd
 
 from .extract_config import extract_config
 from .lint_tests import *
+from .utils import table_to_df
 
 class ExcelLint:
     """Class to check for inconsistencies in lab (excel) files."""
     
-    def __init__(self, config:str, file:str,skiprows:int):
+    def __init__(self, config:str, file:str,skiprows:int, report:str):
         """Initialize the class."""        
 
         config = config if config != "config sheet in [file]" else file 
         self.config = extract_config(config)
         self.skiprows = skiprows
+        self.report = report
 
         df = pd.read_excel(file, skiprows=self.skiprows)
         df  = df.reset_index().rename(columns={'index': 'Row_Number'})
@@ -68,11 +70,11 @@ class ExcelLint:
                     self.failed.extend(failed)
                     
                     time.sleep(0.1)
-                except KeyError as e:
+                except KeyError as error:
                     console = Console(force_terminal=True)
                     console.print(
                         Panel(
-                            f"KeyError: {e} \n\n Check your config file, skipping test {key}",
+                            f"KeyError: {error} \n\n Check your config file, skipping test {key}",
                             title="KeyError",
                             style="bold dark_orange",
                         )
@@ -82,6 +84,37 @@ class ExcelLint:
 
         # Mark the task as completed
         progress.stop()
+
+    def _save_results(self):
+        """Save linting to a excel file."""
+
+        def lint_result_to_df(lint_result_list):
+            """Convert a list of lint test results into a pandas dataframe."""
+            lint_results = [{
+                    'checked' :"",
+                    'row': result.row,
+                    'column': result.column,
+                    'value': result.value,
+                    'lint_test': result.lint_test,
+                    'message': result.message
+                } for result in lint_result_list]
+            df = pd.DataFrame(lint_results)
+            return df
+
+        with pd.ExcelWriter(self.report, mode = 'w') as excel_writer:
+            if len(self.warned) > 0:
+                df = lint_result_to_df(self.warned)
+                df.to_excel(excel_writer,sheet_name='Warnings',index=False)
+
+            if len(self.failed) > 0:
+                df = lint_result_to_df(self.failed)
+                df.to_excel(excel_writer,sheet_name='Failed',index=False)    
+            
+            if len(self.passed) > 0:
+                df = lint_result_to_df(self.passed)
+                df.to_excel(excel_writer,sheet_name='Passed',index=False)
+            
+
 
     def _print_results(self):
         """Print linting results to the command line.
@@ -175,4 +208,4 @@ class ExcelLint:
 
         console.print(
             summary_panel
-    )   
+        )   

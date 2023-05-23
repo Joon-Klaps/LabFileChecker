@@ -14,7 +14,6 @@ import pandas as pd
 
 from .extract_config import extract_config
 from .lint_tests import *
-from .utils import table_to_df
 
 class ExcelLint:
     """Class to check for inconsistencies in lab (excel) files."""

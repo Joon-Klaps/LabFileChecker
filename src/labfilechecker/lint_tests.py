@@ -246,33 +246,33 @@ def numeric_values(df, config):
             )]
     return passed, warned, failed
 
-def presence_patientsID(df, config):
-    """HARDCODED-check: check if all lassa samples have a patient ID."""
-    
-    df_lassa = df[df['Sample_Catagory'] == 'LASSA SAMPLE']
-    df_lassa = df_lassa[df_lassa['Database_PatientID'].isnull()]
-
+def presence_databaseID(df, config):
+    """HARDCODED-check: check if all lassa samples have a patient ID and specimen ID."""
     passed = []
     warned = []
     failed = []
-    if not df_lassa.empty:
-        failed.extend(
-            list(map(lambda row: LintResult(
-                row['Row_Number'],
-                'SampleID', 
-                row['SampleID'], 
-                'presence-patientsID', 
-                f"The lassa ID: {row['SampleID']} - was not found in the database, make sure it's written correctly (no leading zeros, correct year ...XXLVYY)"), 
-            df_lassa.to_dict('records')))
-        )
-    else:
+    df_lassa = df[df['Sample_Catagory'] == 'LASSA SAMPLE']
+    for column in ['Database_PatientID', 'Database_idSpecimen']:
+        df_lassa_subset = df_lassa[df_lassa[column].isnull()]
+        if not df_lassa_subset.empty:
+            failed.extend(
+                list(map(lambda row: LintResult(
+                    row['Row_Number'],
+                    'SampleID', 
+                    row['SampleID'], 
+                    column, 
+                    f"The lassa ID: {row['SampleID']} - was not found in the database, make sure it's written correctly (no leading zeros, correct year ...XXLVYY)"), 
+                df_lassa.to_dict('records')))
+            )
+
+    if not failed :
         passed =[
             LintResult(
                 row=None,
                 column=None,
-                value='presence-patientsID',
-                lint_test="presence-patientsID",
-                message="All lassa samples have a patient ID"
+                value='presence-databaseID',
+                lint_test="presence-databaseID",
+                message="All lassa samples have a database specimen and patient ID"
             )]
     return passed, warned, failed
 

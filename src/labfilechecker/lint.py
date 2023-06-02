@@ -20,7 +20,7 @@ class ExcelLint:
     
     def __init__(self, config:str, file:str,skiprows:int, report:str):
         """Initialize the class."""        
-        
+
         self.config = extract_config(config)
         self.skiprows = skiprows
         self.report = report
@@ -36,7 +36,7 @@ class ExcelLint:
             "dates"               : dates,
             "unrealistic_dates"   : unrealistic_dates,
             "numeric_values"      : numeric_values,
-            "presence_patientsID" : presence_patientsID,
+            "presence_databaseID" : presence_databaseID,
             "referring_ids"       : referring_ids,
             "allowed_values"      : allowed_values
             }

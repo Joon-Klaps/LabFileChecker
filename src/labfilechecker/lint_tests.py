@@ -262,7 +262,7 @@ def presence_databaseID(df, config):
                     row['SampleID'], 
                     column, 
                     f"The lassa ID: {row['SampleID']} - was not found in the database, make sure it's written correctly (no leading zeros, correct year ...XXLVYY)"), 
-                df_lassa.to_dict('records')))
+                df_lassa_subset.to_dict('records')))
             )
 
     if not failed :

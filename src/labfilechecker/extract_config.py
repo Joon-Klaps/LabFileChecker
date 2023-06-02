@@ -21,7 +21,7 @@ def extract_config(config):
         raise ValueError("Unknown config file type")
 
 def extract_config_excel(config):
-    df = pd.read_excel(config, sheet_name="config", na_values=["", "NA", " ", "nan", "NaN", "NAN"])
+    df = pd.read_excel(config, sheet_name="config", na_values=["", "NA", " ", "nan", "NaN", "NAN"],dtype=str)
     # return a dictionary that doesn't contain any NaN values in the values
     df_dict = df.to_dict('index')
     for row_dict in df_dict:

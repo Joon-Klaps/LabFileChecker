@@ -43,9 +43,9 @@ def version_check(curr_version):
 @app.command()
 def main(
         file:str,
-        report: Optional[str] = typer.Option("report.xlsx", help="save the linting results to a excel file."),
+        report: Optional[str] = typer.Option(None, help="save the linting results to a excel file. Defaults to the same name as the excel file with '_report' appended."),
         export_report: Optional[bool] = typer.Option(True, help="save the linting results to a excel file."),
-        config:Optional[str] = typer.Option("config sheet in [file]", help="configuration file used to check the excel file."),
+        config:Optional[str] = typer.Option(None, help="configuration file used to check the excel file. Defaults to 'config' sheet in the given excel file"),
         export_config:Optional[bool] = typer.Option(False, help="save the configuration .yml file."),
         skiprows:Optional[int] = typer.Option(0, help="Number of rows to skip at the beginning of the excel file."),
         version: Optional[bool] = typer.Option(None, "--version", callback=version_callback)
@@ -58,6 +58,12 @@ def main(
 
     if not os.path.isfile(file):
         raise typer.Exit(f"{file} does not exist.")
+    
+    if config is None:
+        config = file 
+
+    if report is None:
+        report = os.path.splitext(file)[0] + "_report.xlsx"
 
     lint = ExcelLint(config, file,skiprows,report)
 

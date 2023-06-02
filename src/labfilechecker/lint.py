@@ -20,8 +20,7 @@ class ExcelLint:
     
     def __init__(self, config:str, file:str,skiprows:int, report:str):
         """Initialize the class."""        
-
-        config = config if config != "config sheet in [file]" else file 
+        
         self.config = extract_config(config)
         self.skiprows = skiprows
         self.report = report

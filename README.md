@@ -109,9 +109,9 @@ There are a total of 10 tests that can be passed. Note that there can be more wa
 
    > Checks if the IDs split up by the seperation character are present in the column to which they are referring to
 
-9. Presence-Patients ID:
+9. Presence-database ID:
 
-   > Checks if the sample category is a 'LASSA SAMPLE' contains a value for the patientID, meaning it can be associated to a patient.
+   > Checks if the sample category is a 'LASSA SAMPLE' contains a value for the patientID and specimenID, meaning it can be associated to a patient and a specific sample.
 
 10. Allowed-Values:
 

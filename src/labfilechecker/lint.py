@@ -25,7 +25,7 @@ class ExcelLint:
         self.skiprows = skiprows
         self.report = report
 
-        df = pd.read_excel(file, skiprows=self.skiprows)
+        df = pd.read_excel(file, skiprows=self.skiprows, na_values=['NA','na','N/A','n/a','nan','NaN','NAN'], keep_default_na=False)
         df  = df.reset_index().rename(columns={'index': 'Row_Number'})
         df['Row_Number'] = df['Row_Number'] + self.skiprows +2 
         self.df = df
@@ -38,7 +38,8 @@ class ExcelLint:
             "numeric_values"      : numeric_values,
             "presence_databaseID" : presence_databaseID,
             "referring_ids"       : referring_ids,
-            "allowed_values"      : allowed_values
+            "allowed_values"      : allowed_values,
+            "presence_value"     : presence_value
             }
         self.passed = []
         self.warned = []
@@ -52,7 +53,7 @@ class ExcelLint:
 
         # Create a Progress instance with the desired format
         progress = Progress("[progress.description]{task.description}", BarColumn())
-
+        df_noBlanks = self.df.copy().replace(to_replace = ['',' ','  '], value = pd.NA)
         with progress:
             # Define a task for the progress bar
             task = progress.add_task("[cyan]Running tests...", total=len(self.lint_tests))
@@ -62,7 +63,7 @@ class ExcelLint:
                 try :   
                     progress.update(task, description=f"Running test {key}")
 
-                    passed, warned, failed = lint_test(self.df.copy(), self.config)
+                    passed, warned, failed = lint_test(df_noBlanks if key != "presence_value" else self.df.copy(), self.config)
                     self.passed.extend(passed)
                     self.warned.extend(warned)
                     self.failed.extend(failed)

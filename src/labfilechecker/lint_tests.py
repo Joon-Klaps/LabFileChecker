@@ -378,3 +378,44 @@ def allowed_values(df,config):
                 message=f"All values are correct in columns: {' ,'.join([sublist[0] for sublist in allowed_columns ])}"
             )]
     return passed, warned, failed
+
+def presence_value(df,config):
+    """Check if any values are present if the first column has a value"""
+    columns = [v['Column_name'] for v in config.values()]
+    pattern = r'[\w\d]'
+    
+    passed = []
+    warned = []
+    failed = []
+
+    df = df[df[columns[0]].astype(str).str.contains(pattern, regex=True)]
+    melted_df = pd.melt(df[columns + ['Row_Number']], id_vars='Row_Number', var_name='column', value_name='value')
+    
+    # remove rows where value is null
+    melted_df = melted_df[melted_df['value'].notnull()]
+
+    melted_df['value'] = melted_df['value'].astype(str)
+
+    # keep rows where value is blank
+    blank_df = melted_df[~melted_df['value'].str.contains(pattern, regex=True)]
+
+    if not blank_df.empty:
+        warned.extend(
+            list(map(lambda row: LintResult(
+                row['Row_Number'],
+                row['column'],
+                row['value'],
+                'presence-value',
+                f"The value {row['value']} seems to be blank in column {row['column']}"),
+            blank_df.to_dict('records')))
+            )
+    else : 
+        passed = [
+            LintResult(
+                row=None,
+                column=None,
+                value=None,
+                lint_test="presence-value",
+                message=f"All values are present in columns: {' ,'.join(columns)}"
+            )]
+    return passed, warned, failed

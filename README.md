@@ -45,7 +45,8 @@ Options:
 --report                TEXT        save the linting results to a excel file. [default: report.xlsx]
 --export-report  --no-export-report save the linting results to a excel file. [default: export-report]
 --config                TEXT        configuration file used to check the excel file. [default: config sheet in [file]]
---export-config  --no-export-config save the configuration .yml file. [default: no-export-config]
+--skip-tests            TEXT        skip the lists of tests: [column_names, duplicate_samples, dates, unrealistic_dates, numeric_values,
+                                    presence_databaseID, referring_ids, allowed_values, presence_value]
 --skiprows              INTEGER     Number of rows to skip at the beginning of the excel file. [default: 1]
 --help                              Show this message and exit.
 ```
@@ -109,21 +110,25 @@ There are a total of 10 tests that can be passed. Note that there can be more wa
 
    > Checks if the IDs split up by the seperation character are present in the column to which they are referring to
 
-9. Presence-Patients ID:
+9. Presence-database ID:
 
-   > Checks if the sample category is a 'LASSA SAMPLE' contains a value for the patientID, meaning it can be associated to a patient.
+   > Checks if the sample category is a 'LASSA SAMPLE' contains a value for the patientID and specimenID, meaning it can be associated to a patient and a specific sample.
 
 10. Allowed-Values:
 
     > Checks if the values of the column are in the range of the allowed values specified within the config file.
 
+11. Presence-Values:
+    > Checks if there are any blank values in the excel
+
 ### Terminal output
 
-The terminal will display the results and show how many tests have `failed`, `warned` or `passed`.
+The terminal will display the results and show how many tests have `failed`, `warned`, `passed`, `skipped`.
 
 - `failed` tests show critical errors, that will make data integration extremely more challenging and labour intensive
-- `warned` tests show warnings, which mostly correspond to data loss when being intergrated in a database
+- `warned` tests show warnings, which mostly correspond to data loss when being integrated in a database
 - `passed` tests show tests that completed without any issues.
+- `skipped` tests show tests that were skipped either through an error that occurred or through specification.
 
 All results are displayed in a table format that contain the identified row, the column, the type of test and a message that will help to solve the issue.
 

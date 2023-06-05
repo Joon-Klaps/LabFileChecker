@@ -18,16 +18,16 @@ from .lint_tests import *
 class ExcelLint:
     """Class to check for inconsistencies in lab (excel) files."""
     
-    def __init__(self, config:str, file:str,skiprows:int, report:str):
+    def __init__(self, config:str, file:str,skip_tests:list, skip_rows:int, report:str, ):
         """Initialize the class."""        
 
         self.config = extract_config(config)
-        self.skiprows = skiprows
+        self.skip_rows = skip_rows
         self.report = report
 
-        df = pd.read_excel(file, skiprows=self.skiprows)
+        df = pd.read_excel(file, skiprows=self.skip_rows, na_values=['NA','na','N/A','n/a','nan','NaN','NAN'], keep_default_na=False)
         df  = df.reset_index().rename(columns={'index': 'Row_Number'})
-        df['Row_Number'] = df['Row_Number'] + self.skiprows +2 
+        df['Row_Number'] = df['Row_Number'] + self.skip_rows +2 
         self.df = df
         
         self.lint_tests = {
@@ -38,11 +38,19 @@ class ExcelLint:
             "numeric_values"      : numeric_values,
             "presence_databaseID" : presence_databaseID,
             "referring_ids"       : referring_ids,
-            "allowed_values"      : allowed_values
+            "allowed_values"      : allowed_values,
+            "presence_value"     : presence_value
             }
         self.passed = []
         self.warned = []
         self.failed = []
+        self.skipped = []
+        if skip_tests:
+            skipped = [ LintResult(None, None, test, test,f"skipping {test}") for test in skip_tests]
+            self.skipped.extend(skipped)
+
+            # Remove skipped tests from lint_tests
+            self.lint_tests = {key: value for key, value in self.lint_tests.items() if key not in skip_tests}
 
     def lint(self):
         """Run all lint tests."""
@@ -50,9 +58,10 @@ class ExcelLint:
         warned = []
         failed = []
 
+
         # Create a Progress instance with the desired format
         progress = Progress("[progress.description]{task.description}", BarColumn())
-
+        df_noBlanks = self.df.copy().replace(to_replace = ['',' ','  '], value = pd.NA)
         with progress:
             # Define a task for the progress bar
             task = progress.add_task("[cyan]Running tests...", total=len(self.lint_tests))
@@ -62,21 +71,14 @@ class ExcelLint:
                 try :   
                     progress.update(task, description=f"Running test {key}")
 
-                    passed, warned, failed = lint_test(self.df.copy(), self.config)
+                    passed, warned, failed = lint_test(df_noBlanks if key != "presence_value" else self.df.copy(), self.config)
                     self.passed.extend(passed)
                     self.warned.extend(warned)
                     self.failed.extend(failed)
                     
                     time.sleep(0.1)
                 except KeyError as error:
-                    console = Console(force_terminal=True)
-                    console.print(
-                        Panel(
-                            f"KeyError: {error} \n\n Check your config file, skipping test {key}",
-                            title="KeyError",
-                            style="bold dark_orange",
-                        )
-                    )
+                    self.skipped.extend([LintResult(None, None, key, key,f"KeyError: {error} \n\n !! Check your files, skipping test {key} !!")])
                 # Advance the progress bar for each test
                 progress.advance(task)
 
@@ -111,7 +113,10 @@ class ExcelLint:
             if len(self.passed) > 0:
                 df = lint_result_to_df(self.passed)
                 df.to_excel(excel_writer,sheet_name='Passed',index=False)
-            
+
+            if len(self.skipped) > 0:
+                df = lint_result_to_df(self.skipped)
+                df.to_excel(excel_writer,sheet_name='skipped',index=False)            
 
 
     def _print_results(self):
@@ -169,6 +174,19 @@ class ExcelLint:
                     padding=1,
                 )
             )
+        
+        # Table of skipped tests
+        if len(self.skipped) > 0:
+            console.print(
+                rich.panel.Panel(
+                    format_result(self.skipped, "magenta"),
+                    title=rf"[bold][>>] {len(self.passed)} Tests skipped",
+                    title_align="left",
+                    style="magenta",
+                    padding=1,
+                )
+            )
+
         # Table of passed tests
         if len(self.passed) > 0:
             console.print(
@@ -185,10 +203,12 @@ class ExcelLint:
         summary_table.add_column("Passed")
         summary_table.add_column("Warned")
         summary_table.add_column("Failed")
+        summary_table.add_column("skipped")
         summary_table.add_row(
             str(len(self.passed)),
             str(len(self.warned)),
             str(len(self.failed)),
+            str(len(self.skipped))
         )
         if len(self.warned) + len(self.failed) == 0:
             success_message = Text("😎 All tests passed! 🎉🎉🎉", style="bold")
